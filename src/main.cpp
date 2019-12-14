@@ -115,28 +115,28 @@ void opcontrol() {
 		double y = master.get_analog(ANALOG_RIGHT_Y);
 		double left_x = master.get_analog(ANALOG_LEFT_X);
 
-		// If not rotating a significant amount, run move code instead
-		if (fabs(left_x) < 20) {
-			// Virtually rotate joystick position pi/4 (45 degrees) left
-			double ratio = atan2(y, x) + PI/4;
-			x = sqrt(x*x + y*y) * cos(ratio);
-			y = sqrt(x*x + y*y) * sin(ratio);
+		// Movement
 
-			front_right_mtr = x;
-			rear_left_mtr = x;
-			rear_right_mtr = y;
-			front_left_mtr = y;
-		} else { // Rotate!
-			front_right_mtr = left_x / 2.5;
-			front_left_mtr = left_x / 2.5;
-			rear_right_mtr = -left_x / 2.5;
-			rear_left_mtr = -left_x / 2.5;
+		double ratio = atan2(y, x) + PI/4;
+		x = sqrt(x*x + y*y) * cos(ratio);
+		y = sqrt(x*x + y*y) * sin(ratio);
+
+		double rot_s = left_x / 2.5;
+
+		if (fabs(rot_s) < 4) {
+			rot_s = 0;
 		}
+
+		front_right_mtr = x + rot_s;
+		rear_left_mtr = x - rot_s;
+		rear_right_mtr = y - rot_s;
+		front_left_mtr = y + rot_s;
+
+		// Lifting
 
 		int analog_lift_power = master.get_analog(ANALOG_LEFT_Y);
 		lift_mtr_0 = -analog_lift_power;
 		lift_mtr_1 = -analog_lift_power;
-
 
 		if (master.get_digital(DIGITAL_UP)) {
 			lift_mtr_0 = 32;
