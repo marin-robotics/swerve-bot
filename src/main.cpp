@@ -37,7 +37,6 @@ void on_center_button() {
  */
 void initialize() {
 	pros::lcd::initialize();
-	pros::lcd::set_text(1, "Hello PROS User!");
 
 	pros::lcd::register_btn1_cb(on_center_button);
 }
@@ -110,7 +109,16 @@ void autonomous() {
  * task, not resume it from where it left off.
  */
 void opcontrol() {
+	int f = 0;
+	master.rumble(".- ..-");
+
 	while (true) {
+		f++;
+
+		if (f > 5000) {
+			f = 0;
+		}
+
 		double x = master.get_analog(ANALOG_RIGHT_X);
 		double y = master.get_analog(ANALOG_RIGHT_Y);
 		double left_x = master.get_analog(ANALOG_LEFT_X);
@@ -121,7 +129,7 @@ void opcontrol() {
 		x = sqrt(x*x + y*y) * cos(ratio);
 		y = sqrt(x*x + y*y) * sin(ratio);
 
-		double rot_s = left_x / 2.5;
+		double rot_s = 127 * sin((left_x / 127) * (PI / 2));
 
 		if (fabs(rot_s) < 4) {
 			rot_s = 0;
@@ -131,6 +139,20 @@ void opcontrol() {
 		rear_left_mtr = x - rot_s;
 		rear_right_mtr = y - rot_s;
 		front_left_mtr = y + rot_s;
+
+		// Controller printing / rumble
+
+		pros::lcd::print(0, "rot_s: %f", rot_s);
+
+		if (f % 20 == 0) {
+			master.print(0, 0, "rot_s: %f", rot_s);
+		}
+
+		/*if (f % 30 == 0) {
+			if (fabs(rot_s) > 100 || fabs(y) > 100 || fabs(x) > 100) {
+				master.rumble("-");
+			}
+		}*/
 
 		// Lifting
 
@@ -175,7 +197,6 @@ void opcontrol() {
 			claw_mtr_1 = 0;
 		}
 
-		pros::lcd::set_text(0, std::to_string(lift_mtr_0.get_position()));
 		pros::delay(20);
 
 		pros::delay(20);
