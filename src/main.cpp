@@ -95,10 +95,6 @@ void autonomous() {
 	lift_mtr_1 = 0;
 }
 
-double sinscale(double a, double amax, double magnitude) {
-	 return magnitude * sin((a / amax) * (PI / 2));
-}
-
 /**
  * Runs the operator control code. This function will be started in its own task
  * with the default priority and stack size whenever the robot is enabled via
@@ -124,13 +120,10 @@ void opcontrol() {
 		x = sqrt(x*x + y*y) * cos(ratio);
 		y = sqrt(x*x + y*y) * sin(ratio);
 
-		// Big math, big brain
-		double rot_s = sinscale(left_x, 127, 127);
-
-		front_right_mtr = x + rot_s;
-		rear_left_mtr = x - rot_s;
-		rear_right_mtr = y - rot_s;
-		front_left_mtr = y + rot_s;
+		front_right_mtr = x + left_x;
+		rear_left_mtr = x - left_x;
+		rear_right_mtr = y - left_x;
+		front_left_mtr = y + left_x;
 
 		// Lifting
 
